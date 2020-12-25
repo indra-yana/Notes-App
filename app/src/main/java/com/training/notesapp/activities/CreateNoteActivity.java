@@ -3,9 +3,13 @@ package com.training.notesapp.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,7 +40,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_note);
 
         ImageView ivBack = findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(v -> onBackPressed());
+        ivBack.setOnClickListener(v -> {onBackPressed(); hideKeyboard(this); });
 
         etInputNoteTitle = findViewById(R.id.etInputNoteTitle);
         etInputNoteSubtitle = findViewById(R.id.etInputNoteSubtitle);
@@ -88,6 +92,15 @@ public class CreateNoteActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Note has been saved!", Toast.LENGTH_SHORT).show();
             setResult(RESULT_OK, new Intent());
             finish();
+            hideKeyboard(CreateNoteActivity.this);
+        }
+    }
+
+    public void hideKeyboard(Activity activity) {
+        View view = activity.findViewById(android.R.id.content);
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
