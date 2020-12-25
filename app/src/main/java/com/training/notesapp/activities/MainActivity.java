@@ -1,10 +1,13 @@
-package com.training.notesapp;
+package com.training.notesapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
+
+import com.training.notesapp.R;
+import com.training.notesapp.activities.CreateNoteActivity;
 
 /****************************************************
  * Created by Indra Muliana (indra.ndra26@gmail.com)
