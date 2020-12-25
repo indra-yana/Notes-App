@@ -110,7 +110,7 @@
                 app:layout_constraintTop_toTopOf="@+id/etInputNoteSubtitle" />
 
             <EditText
-                android:id="@+id/etInputNote"
+                android:id="@+id/etInputNoteText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_12sdp"
