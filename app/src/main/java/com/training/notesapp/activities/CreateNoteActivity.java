@@ -97,9 +97,25 @@ public class CreateNoteActivity extends AppCompatActivity {
         selectedImagePath = "";
 
         if (getIntent().getBooleanExtra("isViewOrUpdate", false)) {
+            TextView textView = findViewById(R.id.tvMenuTitle);
+            textView.setText(R.string.text_update_note);
+
             alreadyAvailableNote = (Note) getIntent().getSerializableExtra("note");
             setViewOrUpdateNote();
         }
+
+        findViewById(R.id.ivRemoveWebURL).setOnClickListener(v -> {
+            tvWebURL.setText(null);
+            layoutWebURL.setVisibility(View.GONE);
+        });
+
+        findViewById(R.id.ivRemoveImageNote).setOnClickListener(v -> {
+            ivImageNote.setImageBitmap(null);
+            ivImageNote.setVisibility(View.GONE);
+            selectedImagePath = "";
+
+            findViewById(R.id.ivRemoveImageNote).setVisibility(View.GONE);
+        });
 
         initMiscellaneous();
         setSubtitleIndicator();
@@ -167,6 +183,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         if (alreadyAvailableNote.getImagePath() != null && !alreadyAvailableNote.getImagePath().trim().isEmpty()) {
             ivImageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote.getImagePath()));
             ivImageNote.setVisibility(View.VISIBLE);
+            findViewById(R.id.ivRemoveImageNote).setVisibility(View.VISIBLE);
             selectedImagePath = alreadyAvailableNote.getImagePath();
         }
 
@@ -319,6 +336,7 @@ public class CreateNoteActivity extends AppCompatActivity {
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         ivImageNote.setImageBitmap(bitmap);
                         ivImageNote.setVisibility(View.VISIBLE);
+                        findViewById(R.id.ivRemoveImageNote).setVisibility(View.VISIBLE);
 
                         selectedImagePath = getPathFromUri(selectedImageUri);
                     } catch (Exception ex) {
