@@ -66,13 +66,18 @@ public class CreateNoteActivity extends AppCompatActivity {
 
     private AlertDialog dialogAddURL;
 
+    private Note alreadyAvailableNote;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_note);
 
         ImageView ivBack = findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(v -> {onBackPressed(); hideKeyboard(this); });
+        ivBack.setOnClickListener(v -> {
+            onBackPressed();
+            hideKeyboard(this);
+        });
 
         etInputNoteTitle = findViewById(R.id.etInputNoteTitle);
         etInputNoteSubtitle = findViewById(R.id.etInputNoteSubtitle);
@@ -90,6 +95,11 @@ public class CreateNoteActivity extends AppCompatActivity {
 
         selectedNoteColor = "#333333";
         selectedImagePath = "";
+
+        if (getIntent().getBooleanExtra("isViewOrUpdate", false)) {
+            alreadyAvailableNote = (Note) getIntent().getSerializableExtra("note");
+            setViewOrUpdateNote();
+        }
 
         initMiscellaneous();
         setSubtitleIndicator();
@@ -114,6 +124,10 @@ public class CreateNoteActivity extends AppCompatActivity {
 
         if (layoutWebURL.getVisibility() == View.VISIBLE) {
             note.setWebLink(tvWebURL.getText().toString());
+        }
+
+        if (alreadyAvailableNote != null) {
+            note.setId(alreadyAvailableNote.getId());
         }
 
         new SaveNoteTask(note).execute();
@@ -141,6 +155,24 @@ public class CreateNoteActivity extends AppCompatActivity {
             setResult(RESULT_OK, new Intent());
             finish();
             hideKeyboard(CreateNoteActivity.this);
+        }
+    }
+
+    private void setViewOrUpdateNote() {
+        etInputNoteTitle.setText(alreadyAvailableNote.getTitle());
+        etInputNoteSubtitle.setText(alreadyAvailableNote.getSubtitle());
+        etInputNoteText.setText(alreadyAvailableNote.getNoteText());
+        tvTextDateTime.setText(alreadyAvailableNote.getDateTime());
+
+        if (alreadyAvailableNote.getImagePath() != null && !alreadyAvailableNote.getImagePath().trim().isEmpty()) {
+            ivImageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote.getImagePath()));
+            ivImageNote.setVisibility(View.VISIBLE);
+            selectedImagePath = alreadyAvailableNote.getImagePath();
+        }
+
+        if (alreadyAvailableNote.getWebLink() != null && !alreadyAvailableNote.getWebLink().trim().isEmpty()) {
+            tvWebURL.setText(alreadyAvailableNote.getWebLink());
+            layoutWebURL.setVisibility(View.VISIBLE);
         }
     }
 
@@ -211,10 +243,28 @@ public class CreateNoteActivity extends AppCompatActivity {
             setSubtitleIndicator();
         });
 
+        if (alreadyAvailableNote != null && alreadyAvailableNote.getColor() != null && !alreadyAvailableNote.getColor().trim().isEmpty()) {
+            switch (alreadyAvailableNote.getColor()) {
+                case "#FDBE3B":
+                    layoutMiscellaneous.findViewById(R.id.viewColor2).performClick();
+                    break;
+                case "#FF4842":
+                    layoutMiscellaneous.findViewById(R.id.viewColor3).performClick();
+                    break;
+                case "#3A52FC":
+                    layoutMiscellaneous.findViewById(R.id.viewColor4).performClick();
+                    break;
+                case "#000000":
+                    layoutMiscellaneous.findViewById(R.id.viewColor5).performClick();
+                    break;
+
+            }
+        }
+
         layoutMiscellaneous.findViewById(R.id.layoutAddImage).setOnClickListener(v -> {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(CreateNoteActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_CODE_STORAGE_PERMISSION);
+                ActivityCompat.requestPermissions(CreateNoteActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_STORAGE_PERMISSION);
             } else {
                 selectImage();
             }
