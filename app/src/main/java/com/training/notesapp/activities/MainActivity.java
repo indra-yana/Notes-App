@@ -59,17 +59,17 @@ public class MainActivity extends AppCompatActivity {
 
         rvNotesList.setAdapter(notesAdapter);
 
-        new GetNoteTask(REQUEST_CODE_SHOW_NOTE).execute();
+        new GetNoteTask(REQUEST_CODE_SHOW_NOTE, false).execute();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK) {
-            new GetNoteTask(REQUEST_CODE_ADD_NOTE).execute();
+            new GetNoteTask(REQUEST_CODE_ADD_NOTE, false).execute();
         } else if (requestCode == REQUEST_CODE_UPDATE_NOTE && resultCode == RESULT_OK) {
             if (data != null) {
-                new GetNoteTask(REQUEST_CODE_UPDATE_NOTE).execute();
+                new GetNoteTask(REQUEST_CODE_UPDATE_NOTE, data.getBooleanExtra("isNoteDeleted", false)).execute();
             }
         }
     }
@@ -78,9 +78,11 @@ public class MainActivity extends AppCompatActivity {
     class GetNoteTask extends AsyncTask<Void, Void, List<Note>> {
 
         private int requestCode;
+        private boolean isNoteDeleted;
 
-        public GetNoteTask(int requestCode) {
+        public GetNoteTask(int requestCode, boolean isNoteDeleted) {
             this.requestCode = requestCode;
+            this.isNoteDeleted = isNoteDeleted;
         }
 
         @Override
@@ -100,8 +102,12 @@ public class MainActivity extends AppCompatActivity {
                 notesAdapter.notifyItemInserted(0);
             } else if (requestCode == REQUEST_CODE_UPDATE_NOTE) {
                 noteList.remove(noteClickedPosition);
-                noteList.add(noteClickedPosition, notes.get(noteClickedPosition));
-                notesAdapter.notifyItemChanged(noteClickedPosition);
+                if (isNoteDeleted) {
+                    notesAdapter.notifyItemRemoved(noteClickedPosition);
+                } else {
+                    noteList.add(noteClickedPosition, notes.get(noteClickedPosition));
+                    notesAdapter.notifyItemChanged(noteClickedPosition);
+                }
             }
 
             rvNotesList.smoothScrollToPosition(0);
