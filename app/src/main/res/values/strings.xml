@@ -8,4 +8,8 @@
     <string name="text_miscellaneous">Miscellaneous</string>
     <string name="text_pick_color">Pick Color</string>
     <string name="text_add_image">Add Image</string>
+    <string name="text_add_url">Add URL</string>
+    <string name="text_enter_url">Enter URL</string>
+    <string name="text_add">ADD</string>
+    <string name="text_cancel">CANCEL</string>
 </resources>
