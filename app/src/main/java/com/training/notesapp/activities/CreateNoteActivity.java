@@ -1,15 +1,26 @@
 package com.training.notesapp.activities;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -23,6 +34,7 @@ import com.training.notesapp.R;
 import com.training.notesapp.database.NotesDatabase;
 import com.training.notesapp.entities.Note;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -38,8 +50,13 @@ public class CreateNoteActivity extends AppCompatActivity {
     private EditText etInputNoteTitle, etInputNoteSubtitle, etInputNoteText;
     private TextView tvTextDateTime;
     private View viewSubtitleIndicator;
+    private ImageView ivImageNote;
 
     private String selectedNoteColor;
+    private String selectedImagePath;
+
+    private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
+    private static final int REQUEST_CODE_SELECT_IMAGE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +71,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         etInputNoteText = findViewById(R.id.etInputNoteText);
         tvTextDateTime = findViewById(R.id.tvTextDateTime);
         viewSubtitleIndicator = findViewById(R.id.viewSubtitleIndicator);
+        ivImageNote = findViewById(R.id.ivImageNotePreview);
 
         tvTextDateTime.setText(new SimpleDateFormat("EEEE, dd MMMM yyyy HH:mm a", Locale.getDefault()).format(new Date()));
 
@@ -61,6 +79,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         ivSaveNote.setOnClickListener(v -> saveNote());
 
         selectedNoteColor = "#333333";
+        selectedImagePath = "";
 
         initMiscellaneous();
         setSubtitleIndicator();
@@ -81,6 +100,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         note.setNoteText(etInputNoteText.getText().toString());
         note.setDateTime(tvTextDateTime.getText().toString());
         note.setColor(selectedNoteColor);
+        note.setImagePath(selectedImagePath);
 
         new SaveNoteTask(note).execute();
     }
@@ -177,11 +197,37 @@ public class CreateNoteActivity extends AppCompatActivity {
             setSubtitleIndicator();
         });
 
+        layoutMiscellaneous.findViewById(R.id.layoutAddImage).setOnClickListener(v -> {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(CreateNoteActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_CODE_STORAGE_PERMISSION);
+            } else {
+                selectImage();
+            }
+        });
+
     }
 
     private void setSubtitleIndicator() {
         GradientDrawable gradientDrawable = (GradientDrawable) viewSubtitleIndicator.getBackground();
         gradientDrawable.setColor(Color.parseColor(selectedNoteColor));
+    }
+
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_STORAGE_PERMISSION && grantResults.length > 0) {
+            selectImage();
+        } else {
+            Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void hideKeyboard(Activity activity) {
@@ -192,4 +238,41 @@ public class CreateNoteActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK) {
+            if (data != null) {
+                Uri selectedImageUri = data.getData();
+                if (selectedImageUri != null) {
+                    try {
+                        InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        ivImageNote.setImageBitmap(bitmap);
+                        ivImageNote.setVisibility(View.VISIBLE);
+
+                        selectedImagePath = getPathFromUri(selectedImageUri);
+                    } catch (Exception ex) {
+                        Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }
+    }
+
+    private String getPathFromUri(Uri contentUri) {
+        String filePath;
+        Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
+
+        if (cursor == null) {
+            filePath = contentUri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int index = cursor.getColumnIndex("_data");
+            filePath = cursor.getString(index);
+            cursor.close();
+        }
+
+        return filePath;
+    }
 }
