@@ -9,6 +9,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.training.notesapp.R;
@@ -60,6 +64,39 @@ public class MainActivity extends AppCompatActivity {
         rvNotesList.setAdapter(notesAdapter);
 
         new GetNoteTask(REQUEST_CODE_SHOW_NOTE, false).execute();
+
+        ImageView ivClearInputSearch = findViewById(R.id.ivClearInputSearch);
+        EditText etInputSearch = findViewById(R.id.etInputSearch);
+        etInputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                notesAdapter.cancelSearch();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (noteList.size() != 0) {
+                    notesAdapter.searchNotes(s.toString());
+                }
+
+                if (s.toString().trim().isEmpty()) {
+                    ivClearInputSearch.setVisibility(View.GONE);
+                } else {
+                    ivClearInputSearch.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        ivClearInputSearch.setOnClickListener(v -> {
+            etInputSearch.setText(null);
+            ivClearInputSearch.setVisibility(View.GONE);
+        });
+
     }
 
     @Override
