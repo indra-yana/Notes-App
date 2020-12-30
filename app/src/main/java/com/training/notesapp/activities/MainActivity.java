@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     private AlertDialog dialogAddURL;
 
+    private int currentViewType = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
         ivAddNoteMain.setOnClickListener(v -> startActivityForResult(new Intent(getApplicationContext(), CreateNoteActivity.class), REQUEST_CODE_ADD_NOTE));
 
         rvNotesList = findViewById(R.id.rvNotesList);
-        rvNotesList.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        // rvNotesList.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        setViewType();
 
         noteList = new ArrayList<>();
         notesAdapter = new NotesAdapter(noteList, (note, position) -> {
@@ -125,6 +129,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         findViewById(R.id.ivQuickActionAddWebLink).setOnClickListener(v -> showAddURLDialog());
+
+        findViewById(R.id.ivViewType).setOnClickListener(v -> setViewType());
     }
 
     @Override
@@ -263,6 +269,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         dialogAddURL.show();
+    }
+
+    private void setViewType() {
+        ImageView imageView = findViewById(R.id.ivViewType);
+
+        if (currentViewType == 1) {
+            rvNotesList.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+            imageView.setImageResource(R.drawable.ic_view_list);
+            currentViewType = 2;
+        } else {
+            rvNotesList.setLayoutManager(new LinearLayoutManager(this));
+            imageView.setImageResource(R.drawable.ic_view_grid);
+            currentViewType = 1;
+        }
     }
 
 }
