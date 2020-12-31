@@ -1,6 +1,5 @@
 package com.training.notesapp.adapters;
 
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.training.notesapp.R;
 import com.training.notesapp.entities.Note;
@@ -127,8 +127,13 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
                 gradientDrawable.setColor(Color.parseColor("#333333"));
             }
 
-            if (note.getImagePath() != null) {
-                ivImageNote.setImageBitmap(BitmapFactory.decodeFile(note.getImagePath()));
+            if (!note.getImagePath().trim().isEmpty()) {
+                // ivImageNote.setImageBitmap(BitmapFactory.decodeFile(note.getImagePath()));
+                Glide.with(itemView.getContext())
+                        .asBitmap()
+                        .load(note.getImagePath())
+                        .into(ivImageNote);
+
                 ivImageNote.setVisibility(View.VISIBLE);
             } else {
                 ivImageNote.setVisibility(View.GONE);
