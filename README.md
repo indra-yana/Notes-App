@@ -6,6 +6,6 @@ Simple Notes App
 - Room Database
 
 ## Screenshots
-[![Screenshot](screenshot/home.PNG)](#)  [![Screenshot](screenshot/home-list.PNG)](#)  [![Screenshot](screenshot/home-search-note.PNG)](#)
+[![Screenshot](screenshot/home.png)](#)  [![Screenshot](screenshot/home-list.png)](#)  [![Screenshot](screenshot/home-search-note.png)](#)
 
-[![Screenshot](screenshot/add-note-main.PNG)](#)  [![Screenshot](screenshot/add-note-url.PNG)](#)  [![Screenshot](screenshot/add-note-image.PNG)](#)
+[![Screenshot](screenshot/add-note-main.png)](#)  [![Screenshot](screenshot/add-note-url.png)](#)  [![Screenshot](screenshot/add-note-image.png)](#)
