@@ -2,6 +2,7 @@
 
 Simple Notes App
 
+## Features
 - Android Java
 - Room Database
 
